@@ -1271,6 +1271,37 @@ describe('miscellaneous', function() {
     });
   });
 
+  it('works for POST wrapped queries used by Parse-JS-SDK', (done) => {
+    let object = new Parse.Object('AnObject');
+    object.set('a', 'b');
+    object.save().then(() => {
+      let headers = {
+        'Content-Type': 'application/json'
+      }
+      let body = {
+        _method: 'GET',
+        _ApplicationId: 'test',
+        _JavaScriptKey: 'test',
+        _ClientVersion: 'js1.8.3',
+        _InstallationId: 'iid'
+      }
+      let requestOptions = {
+        headers: headers,
+        url: 'http://localhost:8378/1/classes/AnObject',
+        body: JSON.stringify(body)
+      }
+      request.post(requestOptions, (err, res, body) => {
+        expect(err).toBeUndefined();
+        expect(body.error).toBeUndefined();
+        expect(body.results).not.toBeUndefined();
+        expect(body.results.length).toBe(1);
+        let result = body.results[0];
+        expect(result.a).toBe('b');
+        done();
+      })
+    });
+  });
+
   it('gets relation fields', (done) => {
     let object = new Parse.Object('AnObject');
     let relatedObject = new Parse.Object('RelatedObject');
