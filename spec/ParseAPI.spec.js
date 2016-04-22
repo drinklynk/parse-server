@@ -1288,10 +1288,10 @@ describe('miscellaneous', function() {
       let requestOptions = {
         headers: headers,
         url: 'http://localhost:8378/1/classes/AnObject',
-        body: JSON.stringify(body)
+        body: body,
+        json: true
       }
       request.post(requestOptions, (err, res, body) => {
-        expect(err).toBeUndefined();
         expect(body.error).toBeUndefined();
         expect(body.results).not.toBeUndefined();
         expect(body.results.length).toBe(1);
