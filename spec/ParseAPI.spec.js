@@ -401,7 +401,33 @@ describe('miscellaneous', function() {
       expect(res.get('foo')).toEqual('baz');
       done();
     });
-  })
+  });
+  
+  fit('should return user subclass ', (done) => {
+    var user = new Parse.User();
+    user.set("password", "asdf");
+    user.set("email", "asdasd@example.com");
+    user.set("username", "asdsadas");
+    user.signUp(null)
+    .then(() => {
+      const headers = {
+        'Content-Type': 'application/json',
+        'X-Parse-Application-Id': 'test',
+        'X-Parse-Javascript-Key': 'test',
+        'X-Parse-Session-Token': user.getSessionToken()
+      };
+      request.post({
+        headers: headers,
+        url: 'http://localhost:8378/1/functions/checkReqUserIsSubclass',
+        body: '{}'
+      }, (error, response, body) => {
+        expect(error).toBe(null);
+        var res = JSON.parse(body).result;
+        expect(res).toBe('test');
+        done();
+      });
+    });
+  });
 
   it('test rest_create_app', function(done) {
     var appId;

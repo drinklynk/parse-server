@@ -109,6 +109,21 @@ Parse.Cloud.define('echoKeys', function(req, res){
   })
 });
 
+class ParseUserSubclass extends Parse.User {
+  customMethod() {
+    return 'test';
+  }
+}
+Parse.Object.registerSubclass(Parse.User.className, ParseUserSubclass);
+
+Parse.Cloud.define('checkReqUserIsSubclass', function(req, res){
+  if (req.user && req.user.customMethod) {
+    res.success(req.user.customMethod());
+  } else {
+    res.error('req.user was not an instance of subclass');
+  }
+});
+
 Parse.Cloud.define('createBeforeSaveChangedObject', function(req, res){
   var obj = new Parse.Object('BeforeSaveChanged');
   obj.save().then(() => {
