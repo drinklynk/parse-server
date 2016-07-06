@@ -83,6 +83,11 @@ export class UsersRouter extends ClassesRouter {
           throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, 'Invalid username/password.');
         }
         user = results[0];
+
+        if (req.config.verifyUserEmails && req.config.preventLoginWithUnverifiedEmail && !user.emailVerified) {
+          throw new Parse.Error(Parse.Error.EMAIL_NOT_FOUND, 'User email is not verified.');
+        }
+
         return passwordCrypto.compare(req.body.password, user.password);
       }).then((correct) => {
 
@@ -158,7 +163,7 @@ export class UsersRouter extends ClassesRouter {
   handleResetRequest(req) {
     try {
       Config.validateEmailConfiguration({
-        verifyUserEmails: true, //A bit of a hack, as this isn't the intended purpose of this parameter
+        emailAdapter: req.config.userController.adapter,
         appName: req.config.appName,
         publicServerURL: req.config.publicServerURL,
       });
